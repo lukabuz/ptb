@@ -22,3 +22,7 @@ Route::get('proxies', 'ProxyController@index');
 Route::post('proxies', 'ProxyController@create');
 
 Route::post('orders', 'OrderController@create');
+Route::get('orders', 'OrderController@index');
+Route::get('orders/locations', 'OrderController@locations');
+
+Route::get('jobs', 'JobController@index');

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateOrderRequest;
 use App\Models\Order;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -34,6 +35,24 @@ class OrderController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => $order
+        ]);
+    }
+
+    public function index(){
+        return response()->json([
+            'status' => 'success',
+            'data' => Order::all()
+        ]);
+    }
+
+    public function locations(){
+        return response()->json([
+            'status' => 'success',
+            'data' => DB::table('proxies')
+                ->select('location')
+                ->where('enabled', true)
+                ->groupBy('location')
+                ->get()
         ]);
     }
 
