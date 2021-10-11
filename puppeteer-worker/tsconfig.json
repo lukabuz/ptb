@@ -101,6 +101,7 @@
   },
   "include": [
     "node_modules/@types/puppeteer/index.d.ts",
+    "node_modules/@types/puppeteer-cluster/index.d.ts",
     "src"
   ],
   "exclude": ["node_modules", "dist", "test"]

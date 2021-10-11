@@ -16,6 +16,8 @@ class Job extends Model
         "execute_after",
         "referrer",
         "keyword",
-        "executed_on"
+        "executed_on",
+        "user_agent",
+        "destination_url"
     ];
 }

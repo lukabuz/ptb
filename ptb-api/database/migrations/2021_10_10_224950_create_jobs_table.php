@@ -21,11 +21,15 @@ class CreateJobsTable extends Migration
             $table->foreign('proxy_id')->references('id')->on('proxies')->onDelete('set null');
             $table->string('referrer');
             $table->string('keyword');
+            $table->string('user_agent');
+            $table->string("destination_url");
 
             $table->string('status');
             $table->timestamp('execute_after')->nullable();
             $table->timestamp('executed_on')->nullable();
             $table->longText('error_dump')->nullable();
+
+            $table->string('node_id')->nullable();
 
             $table->timestamps();
         });

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Faker\Provider\UserAgent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -52,9 +53,11 @@ class Order extends Model
                 "order_id" => $this->id,
                 "proxy_id" => $proxies[array_rand($proxies)]["id"],
                 "status" => "NEW",
+                "user_agent" => UserAgent::userAgent(),
                 "execute_after" => $startTime->addSeconds($intervalBetweenVisits * $i),
                 "referrer" => $this->referrers[array_rand($this->referrers)],
-                "keyword" => $this->keywords[array_rand($this->keywords)]
+                "keyword" => $this->keywords[array_rand($this->keywords)],
+                "destination_url" => $this->use_redirect_link ? $this->redirect_url : $this->destination_url
             ]);
         }
 
