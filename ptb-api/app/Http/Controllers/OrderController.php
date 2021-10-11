@@ -1,0 +1,46 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\CreateOrderRequest;
+use App\Models\Order;
+use Illuminate\Http\Request;
+
+class OrderController extends Controller
+{
+    //
+
+    public function create(CreateOrderRequest $request){
+        $order = Order::create([
+            "destination_url" => $request->input('destination_url'),
+            "use_redirect_link" => $request->input('use_redirect_link') == 'true',
+            "referrers" => $request->input('referrers'),
+            "locations" => $request->input('locations'),
+            "keywords" => $request->input('keywords'),
+            "start_time" => $request->input('start_time'),
+            "end_time" => $request->input('end_time'),
+            "visitor_count" => $request->input('visitor_count'),
+            "page_idle_time" => $request->input('page_idle_time'),
+            "status" => "CREATED",
+            "is_paid" => false,
+            "redirect_url" =>
+                $request->input('use_redirect_link') == 'true' ?
+                    $this->getCutlyRedirectLink($request->input('destination_url')) :
+                    null
+        ]);
+
+        $order->scheduleJobs();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $order
+        ]);
+    }
+
+    private function getCutlyRedirectLink($url){
+        $apiKey = env("CUTLY_API_KEY");
+        $json = file_get_contents("https://cutt.ly/api/api.php?key=$apiKey&short=$url&public=1");
+        $data = json_decode ($json, true);
+        return $data['url']['shortLink'];
+    }
+}
