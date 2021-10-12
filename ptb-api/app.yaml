@@ -1,0 +1,26 @@
+runtime: php74
+
+handlers:
+  - url: /(.*\.(gif|png|jpg|css|js))$
+    static_files: public/\1
+    upload: public/.*\.(gif|png|jpg|css|js)$
+
+  - url: /.*
+    secure: always
+    redirect_http_response_code: 301
+    script: auto
+
+env_variables:
+  ## Put production environment variables here.
+  APP_KEY: base64:XCZZxUml9cGWWHds+Qb00AWHoKVWpmnKaUvytXhAEvY=
+  APP_STORAGE: /tmp
+  VIEW_COMPILED_PATH: /tmp
+  SESSION_DRIVER: cookie
+  CUTLY_API_KEY: 06d2e42e555381ce6123502e9fee49aac4b20
+  DB_CONNECTION: pgsql
+  DB_HOST: 34.107.49.125
+  DB_PORT: 5432
+  DB_DATABASE: ptb_api
+  DB_USERNAME: ptb_user
+  DB_PASSWORD: 2kbxdEYEmVC9ze
+  API_KEY: test

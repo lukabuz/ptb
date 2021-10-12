@@ -31,7 +31,7 @@ class CreateOrderRequest extends FormRequest
             "keywords" => "required|array",
             "start_time" => "required|date",
             "end_time" => "required|date",
-            "visitor_count" => "required|integer",
+            "visitor_counts" => "required|array",
             "page_idle_time" => "required|integer"
         ];
     }

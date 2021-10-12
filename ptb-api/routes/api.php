@@ -14,15 +14,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
 
-Route::get('proxies', 'ProxyController@index');
-Route::post('proxies', 'ProxyController@create');
+// Route::middleware(['apiKey'])->group(function () {
+    Route::get('proxies', 'ProxyController@index');
+    Route::post('proxies', 'ProxyController@create');
 
-Route::post('orders', 'OrderController@create');
-Route::get('orders', 'OrderController@index');
-Route::get('orders/locations', 'OrderController@locations');
+    Route::post('orders', 'OrderController@create');
+    Route::get('orders', 'OrderController@index');
+    Route::delete('orders/{id}', 'OrderController@close');
+    Route::get('orders/locations', 'OrderController@locations');
 
-Route::get('jobs', 'JobController@index');
+    Route::get('jobs', 'JobController@index');
+// });

@@ -26,7 +26,7 @@ class CreateOrdersTable extends Migration
 
             $table->timestamp('start_time')->nullable();
             $table->timestamp('end_time')->nullable();
-            $table->integer('visitor_count');
+            $table->json('visitor_counts');
 
             $table->enum('status', ['CREATED', 'PAYMENT_PENDING', 'PAYMENT_FAIL', 'IN_PROGRESS', 'CLOSED', 'COMPLETED']);
             $table->string('closing_reason')->nullable();

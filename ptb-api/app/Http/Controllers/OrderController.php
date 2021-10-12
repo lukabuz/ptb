@@ -20,7 +20,7 @@ class OrderController extends Controller
             "keywords" => $request->input('keywords'),
             "start_time" => $request->input('start_time'),
             "end_time" => $request->input('end_time'),
-            "visitor_count" => $request->input('visitor_count'),
+            "visitor_counts" => $request->input('visitor_counts'),
             "page_idle_time" => $request->input('page_idle_time'),
             "status" => "CREATED",
             "is_paid" => false,
@@ -53,6 +53,17 @@ class OrderController extends Controller
                 ->where('enabled', true)
                 ->groupBy('location')
                 ->get()
+        ]);
+    }
+
+    public function close($id){
+        $order = Order::findOrFail($id);
+        $order->status = 'CLOSED';
+        $order->save();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $order
         ]);
     }
 
