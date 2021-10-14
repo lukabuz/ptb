@@ -15,7 +15,7 @@ export default class PostgresWorker {
       this.options.intervals.reserveIntervalMs
     );
 
-    setInterval(() => this.closeFinishedOrders(), 60000);
+    setInterval(() => this.closeFinishedOrders(), 3600000);
   }
 
   public async query(query): Promise<any> {
