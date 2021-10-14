@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-// Route::middleware(['apiKey'])->group(function () {
+Route::middleware(['apiKey'])->group(function () {
     Route::get('proxies', 'ProxyController@index');
     Route::post('proxies', 'ProxyController@create');
 
@@ -25,4 +25,8 @@ use Illuminate\Support\Facades\Route;
     Route::get('orders/locations', 'OrderController@locations');
 
     Route::get('jobs', 'JobController@index');
-// });
+
+    Route::get('auth', function(){
+        return response()->json(['status' => 'success']);
+    });
+});

@@ -11,6 +11,7 @@ export interface Navigation {
   userAgent: string;
   successCheck?: NavigationSuccessCriteria;
   agent: Agent;
+  keyword: string;
 }
 
 export interface NavigationSuccessCriteria {

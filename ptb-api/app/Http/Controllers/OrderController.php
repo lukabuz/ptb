@@ -61,6 +61,11 @@ class OrderController extends Controller
         $order->status = 'CLOSED';
         $order->save();
 
+        DB::table("jobs")
+            ->where("order_id", $id)
+            ->where("status", "NEW")
+            ->update(["status" => "CLOSED"]);
+
         return response()->json([
             'status' => 'success',
             'data' => $order

@@ -29,8 +29,8 @@ class CreateOrderRequest extends FormRequest
             "referrers" => "required|array",
             "locations" => "required|array",
             "keywords" => "required|array",
-            "start_time" => "required|date",
-            "end_time" => "required|date",
+            "start_time" => "required",
+            "end_time" => "required",
             "visitor_counts" => "required|array",
             "page_idle_time" => "required|integer"
         ];

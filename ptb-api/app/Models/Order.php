@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Faker\Provider\UserAgent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Order extends Model
 {
@@ -34,6 +35,10 @@ class Order extends Model
         'visitor_counts' => 'array'
     ];
 
+    protected $appends = [
+        'jobStatus'
+    ];
+
     public function scheduleJobs(){
         $startTime = Carbon::createFromDate($this->start_time);
         $endTime = Carbon::createFromDate($this->end_time);
@@ -48,7 +53,10 @@ class Order extends Model
                 "order_id" => $this->id,
                 "proxy_id" => $proxyBasket[$i],
                 "status" => "NEW",
-                "user_agent" => \Campo\UserAgent::random(),
+                "user_agent" => \Campo\UserAgent::random([
+                    "os_type" => ["Android", "iOS", "Windows", "OS X", "Windows"],
+                    "device_type" => ["Mobile", "Tablet", "Desktop"]
+                ]),
                 "execute_after" => $startTime,
                 "referrer" => $this->referrers[array_rand($this->referrers)],
                 "keyword" => $this->keywords[array_rand($this->keywords)],
@@ -82,5 +90,13 @@ class Order extends Model
             return false;
         };
         return $proxy;
+    }
+
+    public function getJobStatusAttribute(){
+        return DB::table('jobs')
+            ->select(DB::raw('count(*) as count, status'))
+            ->where('order_id', $this->id)
+            ->groupBy('status')
+            ->get();
     }
 }

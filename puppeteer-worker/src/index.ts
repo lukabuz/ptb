@@ -1,14 +1,10 @@
-import { initializeCluster } from "./puppet";
+import { executeTask } from "./puppet";
 import randomUseragent from "random-useragent";
 import { DatabaseJob, Job, Navigation } from "./types/types";
 import PostgresWorker from "./PostgresWorker";
 require("dotenv").config({ path: `${__dirname}/../.env` });
 
 (async () => {
-  const cluster = await initializeCluster(
-    parseInt(process.env.PUPPETEER_MAX_CONCURRENCY)
-  );
-
   const jobCallback = (data, err) => {
     if (err !== null) {
       console.log(`Job ID ${data.jobId} had an error!`);
@@ -19,6 +15,7 @@ require("dotenv").config({ path: `${__dirname}/../.env` });
   };
 
   const prepareAndQueueTask = (rows: DatabaseJob[]) => {
+    let jobArray = [];
     for (let i = 0; i < rows.length; i++) {
       const element = rows[i];
       let job: Job = {
@@ -28,6 +25,7 @@ require("dotenv").config({ path: `${__dirname}/../.env` });
           referer: element.referrer,
           destination: element.destination_url,
           userAgent: element.user_agent,
+          keyword: element.keyword,
           agent: {
             proxyUrl: `${element.ip}:${element.port}`,
             proxyUsername:
@@ -38,8 +36,11 @@ require("dotenv").config({ path: `${__dirname}/../.env` });
         },
         callbackFunction: jobCallback,
       };
-      cluster.queue(job);
+      jobArray.push(job);
     }
+    splitToChunks(jobArray, process.env.BROWSER_MAX_CONCURRENT).forEach(
+      (subJob) => executeTask(subJob)
+    );
   };
 
   const pgWorker = new PostgresWorker(
@@ -61,3 +62,11 @@ require("dotenv").config({ path: `${__dirname}/../.env` });
     prepareAndQueueTask
   );
 })();
+
+const splitToChunks = (array, parts) => {
+  let result = [];
+  for (let i = parts; i > 0; i--) {
+    result.push(array.splice(0, Math.ceil(array.length / i)));
+  }
+  return result;
+};
