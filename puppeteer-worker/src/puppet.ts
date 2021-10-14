@@ -17,7 +17,7 @@ export async function executeTask(jobs) {
   for (let i = 0; i < jobs.length; i++) {
     const job = jobs[i];
     const browser = await puppeteer.launch({
-      headless: false,
+      headless: true,
       args: ["--no-sandbox", `--proxy-server=${job.navigation.agent.proxyUrl}`],
     });
     const page = await browser.newPage();
