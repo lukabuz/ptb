@@ -24,10 +24,9 @@ export async function executeTask(jobs) {
     try {
       await navigateToPage(page, job.navigation);
       job.callbackFunction({ jobId: job.jobId }, null);
+      await browser.close();
     } catch (e) {
       job.callbackFunction({ jobId: job.jobId }, e);
-    } finally {
-      await browser.close();
     }
   }
 }

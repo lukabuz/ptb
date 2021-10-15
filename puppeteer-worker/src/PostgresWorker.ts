@@ -7,6 +7,11 @@ export default class PostgresWorker {
   private prepareAndQueueTask;
 
   constructor(options: PostgresWorkerOptions, prepareAndQueueTask) {
+    console.log(
+      "Initialized PostgresWorker with config ",
+      // @ts-ignore
+      JSON.stringify(options, 0, 2)
+    );
     this.options = options;
     this.prepareAndQueueTask = prepareAndQueueTask;
 
@@ -16,6 +21,8 @@ export default class PostgresWorker {
     );
 
     setInterval(() => this.closeFinishedOrders(), 3600000);
+
+    setInterval(() => this.clearAbandonedJobs(), 30000);
   }
 
   public async query(query): Promise<any> {
@@ -79,7 +86,8 @@ export default class PostgresWorker {
             jobs
         set
             node_id = '${this.options.node_id}',
-            status = 'IN_PROGRESS'
+            status = 'IN_PROGRESS',
+            reserved_on = now()
         where
             id in(
             select
@@ -142,6 +150,19 @@ export default class PostgresWorker {
           where
             j.order_id = o.id
             and j.status in ('NEW', 'IN_PROGRESS')) = 0
+    `);
+  }
+
+  private async clearAbandonedJobs() {
+    await this.query(`
+        update
+          jobs
+        set
+          status = 'NODE_ERROR'
+          error_dump = 'Reservation timeout'
+        where
+          age(now(), j.reserved_on) > '5 minutes'
+          and status = 'IN_PROGRESS'
     `);
   }
 }
