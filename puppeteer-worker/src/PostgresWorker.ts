@@ -161,7 +161,7 @@ export default class PostgresWorker {
           status = 'NODE_ERROR',
           error_dump = 'Reservation timeout'
         where
-          age(now(), j.reserved_on) > '5 minutes'
+          age(now(), reserved_on) > '5 minutes'
           and status = 'IN_PROGRESS'
     `);
   }
