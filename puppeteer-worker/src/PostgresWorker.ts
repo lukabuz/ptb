@@ -158,7 +158,7 @@ export default class PostgresWorker {
         update
           jobs
         set
-          status = 'NODE_ERROR'
+          status = 'NODE_ERROR',
           error_dump = 'Reservation timeout'
         where
           age(now(), j.reserved_on) > '5 minutes'
