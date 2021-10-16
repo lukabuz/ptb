@@ -49,7 +49,7 @@ class OrderController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => DB::table('proxies')
-                ->select('location')
+                ->select('location', DB::raw('count(*) as count'))
                 ->where('enabled', true)
                 ->groupBy('location')
                 ->get()
