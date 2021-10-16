@@ -1,10 +1,12 @@
-import { executeTask } from "./puppet";
-import randomUseragent from "random-useragent";
+import { executeTask, getCluster } from "./puppet";
+const { Cluster } = require("puppeteer-cluster");
 import { DatabaseJob, Job, Navigation } from "./types/types";
 import PostgresWorker from "./PostgresWorker";
 require("dotenv").config({ path: `${__dirname}/../.env` });
 
 (async () => {
+  let cluster = await getCluster();
+
   const jobCallback = (data, err) => {
     if (err !== null) {
       console.log(`Job ID ${data.jobId} had an error!`);
@@ -15,7 +17,6 @@ require("dotenv").config({ path: `${__dirname}/../.env` });
   };
 
   const prepareAndQueueTask = (rows: DatabaseJob[]) => {
-    let jobArray = [];
     for (let i = 0; i < rows.length; i++) {
       const element = rows[i];
       let job: Job = {
@@ -36,11 +37,8 @@ require("dotenv").config({ path: `${__dirname}/../.env` });
         },
         callbackFunction: jobCallback,
       };
-      jobArray.push(job);
+      cluster.queue(job);
     }
-    splitToChunks(jobArray, process.env.BROWSER_MAX_CONCURRENT).forEach(
-      (subJob) => executeTask(subJob)
-    );
   };
 
   const pgWorker = new PostgresWorker(

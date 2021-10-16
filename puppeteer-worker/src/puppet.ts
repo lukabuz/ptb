@@ -1,11 +1,50 @@
 const puppeteer = require("puppeteer-extra");
-const { Cluster } = require("puppeteer-cluster");
 const blockResources = require("puppeteer-extra-plugin-block-resources");
 const useProxy = require("puppeteer-page-proxy");
 
+import { Cluster } from "puppeteer-cluster";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import { Page } from "puppeteer-extra-plugin/dist/puppeteer";
 import { Job, Navigation } from "./types/types";
+
+export async function getCluster(): Promise<Cluster> {
+  return new Promise(async (resolve) => {
+    // puppeteer.use(StealthPlugin());
+    const cluster = await Cluster.launch({
+      concurrency: Cluster.CONCURRENCY_CONTEXT,
+      maxConcurrency: parseInt(process.env.BROWSER_MAX_CONCURRENT),
+      puppeteer,
+      puppeteerOptions: {
+        // @ts-ignore
+        headless: false,
+        args: ["--no-sandbox"],
+      },
+      monitor: true,
+      timeout: 200000,
+    });
+
+    await cluster.task(async ({ page, data: job }) => {
+      try {
+        await navigateToPage(page, job.navigation);
+        job.callbackFunction({ jobId: job.jobId }, null);
+      } catch (e) {
+        job.callbackFunction({ jobId: job.jobId }, e);
+      }
+    });
+
+    cluster.on("taskerror", (err, data, willRetry) => {
+      if (willRetry) {
+        console.warn(
+          `Encountered an error while crawling ${data}. ${err.message}\nThis job will be retried`
+        );
+      } else {
+        console.error(`Failed to crawl ${data.jobId}: ${err.message}`);
+      }
+    });
+
+    resolve(cluster);
+  });
+}
 
 export async function executeTask(jobs) {
   puppeteer.use(StealthPlugin());
@@ -35,6 +74,18 @@ export async function executeTask(jobs) {
 const navigateToPage = async (page: Page, navigation: Navigation) => {
   return new Promise(async (resolve, reject) => {
     try {
+      await page.setRequestInterception(true);
+      page.on("request", async (request) => {
+        if (
+          ["image", "stylesheet", "media", "font"].includes(
+            request.resourceType()
+          )
+        ) {
+          request.abort();
+        } else {
+          await useProxy(request, `http://${navigation.agent.proxyUrl}`);
+        }
+      });
       await page.setUserAgent(navigation.userAgent);
       await page.setViewport({
         width: 1200,

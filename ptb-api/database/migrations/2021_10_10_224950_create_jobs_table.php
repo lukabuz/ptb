@@ -27,7 +27,6 @@ class CreateJobsTable extends Migration
             $table->string('status');
             $table->timestamp('execute_after')->nullable();
             $table->timestamp('executed_on')->nullable();
-            $table->timestamp('reserved_on')->nullable();
             $table->longText('error_dump')->nullable();
 
             $table->string('node_id')->nullable();
