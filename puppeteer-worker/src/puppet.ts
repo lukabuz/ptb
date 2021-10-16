@@ -49,28 +49,17 @@ const navigateToPage = async (page: Page, navigation: Navigation) => {
           referer: navigation.referer, // specify referrer
         }
       );
-      await page.waitForTimeout((navigation.timeToWait * 1000) / 3);
-      await page.$eval("body", (el) => el.click());
-      await page.waitForTimeout((navigation.timeToWait * 1000) / 3);
+      let timeToWait = randomizeTimeToWait(navigation.timeToWait);
+      await page.waitForTimeout((timeToWait * 1000) / 3);
+      await page.$eval("body", (el: any) => el.click());
+      await page.waitForTimeout((timeToWait * 1000) / 3);
       await autoScroll(page);
-      await page.waitForTimeout((navigation.timeToWait * 1000) / 3);
+      await page.waitForTimeout((timeToWait * 1000) / 3);
 
-      if (navigation.successCheck != undefined) {
-        const valueToCheck = await page.$eval(
-          navigation.successCheck.selector,
-          (el, prop) => el[prop],
-          navigation.successCheck.property
-        );
-        console.log(
-          valueToCheck == navigation.successCheck.expectedValue
-            ? "Success"
-            : "Fail"
-        );
-      }
       // clear cookies
-      const client = await page.target().createCDPSession();
-      await client.send("Network.clearBrowserCookies");
-      await client.send("Network.clearBrowserCache");
+      // const client = await page.target().createCDPSession();
+      // await client.send("Network.clearBrowserCookies");
+      // await client.send("Network.clearBrowserCache");
       resolve(true);
     } catch (e) {
       reject(e);
@@ -85,4 +74,10 @@ const autoScroll = async (page) => {
     });
     resolve(true);
   });
+};
+
+const randomizeTimeToWait = (timeToWait) => {
+  let randomTime = Math.random() * timeToWait * 0.1;
+  let isNegative = Math.random() > 0.5;
+  return isNegative ? (timeToWait -= randomTime) : (timeToWait += randomTime);
 };
