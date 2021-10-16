@@ -44,7 +44,7 @@ jobs:
           context: ./puppeteer-worker
           # Note: tags has to be all lower-case
           tags: |
-            lukabuz/ptb-worker:latest
+            lukabuz/ptb-puppet:latest
           # build on feature branches, push only on main branch
           push: ${{ github.ref == 'refs/heads/master' }}
 
