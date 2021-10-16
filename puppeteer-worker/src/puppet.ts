@@ -19,7 +19,7 @@ export async function getCluster(): Promise<Cluster> {
         headless: process.env.RUN_ENVIRONMENT !== "local",
         args: ["--no-sandbox"],
       },
-      monitor: process.env.RUN_ENVIRONMENT !== "local",
+      monitor: process.env.RUN_ENVIRONMENT == "local",
       timeout: 200000,
     });
 
