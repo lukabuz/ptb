@@ -16,7 +16,7 @@ export async function getCluster(): Promise<Cluster> {
       puppeteer,
       puppeteerOptions: {
         // @ts-ignore
-        headless: false,
+        headless: process.env.RUN_ENVIRONMENT !== "local",
         args: ["--no-sandbox"],
       },
       monitor: true,
@@ -57,7 +57,7 @@ export async function executeTask(jobs) {
   for (let i = 0; i < jobs.length; i++) {
     const job = jobs[i];
     const browser = await puppeteer.launch({
-      headless: true,
+      headless: process.env.RUN_ENVIRONMENT !== "local",
       args: ["--no-sandbox", `--proxy-server=${job.navigation.agent.proxyUrl}`],
     });
     const page = await browser.newPage();
