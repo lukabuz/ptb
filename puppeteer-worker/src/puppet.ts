@@ -4,6 +4,7 @@ const blockResources = require("puppeteer-extra-plugin-block-resources");
 const useProxy = require("puppeteer-page-proxy");
 
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
+import { Page } from "puppeteer-extra-plugin/dist/puppeteer";
 import { Job, Navigation } from "./types/types";
 
 export async function executeTask(jobs) {
@@ -17,7 +18,7 @@ export async function executeTask(jobs) {
   for (let i = 0; i < jobs.length; i++) {
     const job = jobs[i];
     const browser = await puppeteer.launch({
-      headless: true,
+      headless: false,
       args: ["--no-sandbox", `--proxy-server=${job.navigation.agent.proxyUrl}`],
     });
     const page = await browser.newPage();
@@ -31,7 +32,7 @@ export async function executeTask(jobs) {
   }
 }
 
-const navigateToPage = async (page, navigation: Navigation) => {
+const navigateToPage = async (page: Page, navigation: Navigation) => {
   return new Promise(async (resolve, reject) => {
     try {
       await page.setUserAgent(navigation.userAgent);
@@ -43,6 +44,8 @@ const navigateToPage = async (page, navigation: Navigation) => {
       await page.goto(
         `${navigation.destination}?keyword=${navigation.keyword}`,
         {
+          waitUntil: "load",
+          timeout: 60000,
           referer: navigation.referer, // specify referrer
         }
       );
