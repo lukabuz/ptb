@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\UserAgentHelper;
 use Carbon\Carbon;
 use Faker\Provider\UserAgent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -53,10 +54,7 @@ class Order extends Model
                 "order_id" => $this->id,
                 "proxy_id" => $proxyBasket[$i],
                 "status" => "NEW",
-                "user_agent" => \Campo\UserAgent::random([
-                    "os_type" => ["Android", "iOS", "Windows", "OS X", "Windows"],
-                    "device_type" => ["Mobile", "Tablet", "Desktop"]
-                ]),
+                "user_agent" => UserAgentHelper::getUserAgent(),
                 "execute_after" => $startTime,
                 "referrer" => $this->referrers[array_rand($this->referrers)],
                 "keyword" => $this->keywords[array_rand($this->keywords)],
