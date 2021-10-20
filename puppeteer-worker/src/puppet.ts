@@ -101,11 +101,25 @@ const navigateToPage = async (page: Page, navigation: Navigation) => {
         }
       );
       let timeToWait = randomizeTimeToWait(navigation.timeToWait);
-      await page.waitForTimeout((timeToWait * 1000) / 3);
-      await page.$eval("body", (el: any) => el.click());
-      await page.waitForTimeout((timeToWait * 1000) / 3);
-      await autoScroll(page);
-      await page.waitForTimeout((timeToWait * 1000) / 3);
+      const possibleLocations = await page.$$eval("a", (elements) =>
+        elements
+          // @ts-ignore
+          .filter((a) => a.hostname == window.location.hostname)
+          // @ts-ignore
+          .map((val) => val.href)
+      );
+
+      console.log(possibleLocations);
+
+      for (let i = 0; i < 4; i++) {
+        await page.waitForTimeout((timeToWait * 1000) / 4);
+        await page.goto(
+          possibleLocations[
+            Math.floor(Math.random() * possibleLocations.length)
+          ]
+        );
+        await autoScroll(page);
+      }
 
       // clear cookies
       // const client = await page.target().createCDPSession();
