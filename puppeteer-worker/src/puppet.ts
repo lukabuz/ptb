@@ -111,11 +111,12 @@ const navigateToPage = async (page: Page, navigation: Navigation) => {
 
       for (let i = 0; i < 4; i++) {
         await page.waitForTimeout((timeToWait * 1000) / 4);
-        await page.goto(
+        const destination =
           possibleLocations[
             Math.floor(Math.random() * possibleLocations.length)
-          ]
-        );
+          ];
+        console.log(destination);
+        await page.goto(destination);
         await autoScroll(page);
       }
 
