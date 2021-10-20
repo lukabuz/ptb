@@ -109,8 +109,6 @@ const navigateToPage = async (page: Page, navigation: Navigation) => {
           .map((val) => val.href)
       );
 
-      console.log(possibleLocations);
-
       for (let i = 0; i < 4; i++) {
         await page.waitForTimeout((timeToWait * 1000) / 4);
         await page.goto(
