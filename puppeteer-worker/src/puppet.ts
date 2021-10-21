@@ -25,7 +25,7 @@ export async function getCluster(): Promise<Cluster> {
 
     await cluster.task(async ({ page, data: job }) => {
       try {
-        await navigateToPage(page, job.navigation);
+        await navigateToPage(page, job.navigation, job.jobId);
         job.callbackFunction({ jobId: job.jobId }, null);
       } catch (e) {
         job.callbackFunction({ jobId: job.jobId }, e);
