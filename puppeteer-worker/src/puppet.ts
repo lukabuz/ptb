@@ -62,7 +62,7 @@ export async function executeTask(jobs) {
     });
     const page = await browser.newPage();
     try {
-      await navigateToPage(page, job.navigation);
+      await navigateToPage(page, job.navigation, job.jobId);
       job.callbackFunction({ jobId: job.jobId }, null);
       await browser.close();
     } catch (e) {
@@ -71,7 +71,11 @@ export async function executeTask(jobs) {
   }
 }
 
-const navigateToPage = async (page: Page, navigation: Navigation) => {
+const navigateToPage = async (
+  page: Page,
+  navigation: Navigation,
+  jobId: number
+) => {
   return new Promise(async (resolve, reject) => {
     try {
       await page.setRequestInterception(true);
@@ -114,7 +118,9 @@ const navigateToPage = async (page: Page, navigation: Navigation) => {
           possibleLocations[
             Math.floor(Math.random() * possibleLocations.length)
           ];
-        console.log(i, possibleLocations);
+        console.log(
+          `Job Id ${jobId} run ${i} going to ${destination} from ${possibleLocations.length} number of choices`
+        );
         await page.goto(destination, {
           waitUntil: ["networkidle0"],
           timeout: (timeToWait * 1000) / 4,
