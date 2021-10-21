@@ -95,7 +95,9 @@ const navigateToPage = async (
         width: 1200,
         height: 800,
       });
-      page.on("console", (consoleObj) => console.log(consoleObj.text()));
+      page.on("console", (consoleObj) =>
+        console.log(`Job ID ${jobId} - ${consoleObj.text()}`)
+      );
 
       // navigate to page
       await page.goto(
