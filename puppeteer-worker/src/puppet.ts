@@ -105,8 +105,8 @@ const navigateToPage = async (
         }
       );
       let timeToWait = randomizeTimeToWait(navigation.timeToWait);
-      for (let i = 0; i < 4; i++) {
-        await page.waitForTimeout((timeToWait * 1000) / 4);
+      for (let i = 0; i < 2; i++) {
+        await page.waitForTimeout(timeToWait * 1000);
         const possibleLocations = await page.$$eval("a", (elements) =>
           elements
             // @ts-ignore
@@ -128,6 +128,15 @@ const navigateToPage = async (
         });
         await autoScroll(page);
       }
+
+      await page.goto(
+        `${navigation.destination}?keyword=${navigation.keyword}`,
+        {
+          waitUntil: ["networkidle0"],
+          timeout: 60000,
+          referer: navigation.referer, // specify referrer
+        }
+      );
 
       // clear cookies
       // const client = await page.target().createCDPSession();
