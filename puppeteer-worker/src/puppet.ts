@@ -95,6 +95,8 @@ const navigateToPage = async (
         width: 1200,
         height: 800,
       });
+      page.on("console", (consoleObj) => console.log(consoleObj.text()));
+
       // navigate to page
       await page.goto(
         `${navigation.destination}?keyword=${navigation.keyword}`,
@@ -116,9 +118,10 @@ const navigateToPage = async (
         );
         let destination = navigation.destination;
         if (possibleLocations.length != 0) {
-          possibleLocations[
-            Math.floor(Math.random() * possibleLocations.length)
-          ];
+          destination =
+            possibleLocations[
+              Math.floor(Math.random() * possibleLocations.length)
+            ];
         }
         console.log(
           `Job Id ${jobId} run ${i} going to ${destination} from ${possibleLocations.length} number of choices`
