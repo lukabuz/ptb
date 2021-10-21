@@ -17,15 +17,15 @@ export async function getCluster(): Promise<Cluster> {
       puppeteerOptions: {
         // @ts-ignore
         headless: process.env.RUN_ENVIRONMENT !== "local",
-        args: ["--no-sandbox", "--disable-web-security"],
+        args: ["--no-sandbox"],
       },
       monitor: process.env.RUN_ENVIRONMENT == "local",
-      timeout: parseInt(process.env.TIMEOUT_LIMIT),
+      timeout: 200000,
     });
 
     await cluster.task(async ({ page, data: job }) => {
       try {
-        await navigateToPage(page, job.navigation, job.jobId);
+        await navigateToPage(page, job.navigation);
         job.callbackFunction({ jobId: job.jobId }, null);
       } catch (e) {
         job.callbackFunction({ jobId: job.jobId }, e);
@@ -62,7 +62,7 @@ export async function executeTask(jobs) {
     });
     const page = await browser.newPage();
     try {
-      await navigateToPage(page, job.navigation, job.jobId);
+      await navigateToPage(page, job.navigation);
       job.callbackFunction({ jobId: job.jobId }, null);
       await browser.close();
     } catch (e) {
@@ -71,11 +71,7 @@ export async function executeTask(jobs) {
   }
 }
 
-const navigateToPage = async (
-  page: Page,
-  navigation: Navigation,
-  jobId: number
-) => {
+const navigateToPage = async (page: Page, navigation: Navigation) => {
   return new Promise(async (resolve, reject) => {
     try {
       await page.setRequestInterception(true);
@@ -95,54 +91,27 @@ const navigateToPage = async (
         width: 1200,
         height: 800,
       });
-      page.on("console", (consoleObj) => {
-        if (consoleObj.text() != "Failed to load resource: net::ERR_FAILED") {
-          console.log(`Job ID ${jobId} - ${consoleObj.text()}`);
-        }
-      });
-
       // navigate to page
       await page.goto(
         `${navigation.destination}?keyword=${navigation.keyword}`,
         {
-          waitUntil: ["networkidle0"],
-          timeout: parseInt(process.env.TIMEOUT_LIMIT),
+          waitUntil: "load",
+          timeout: 60000,
           referer: navigation.referer, // specify referrer
         }
       );
       let timeToWait = randomizeTimeToWait(navigation.timeToWait);
-      for (let i = 0; i < 2; i++) {
-        await page.waitForTimeout(timeToWait * 1000);
-        const possibleLocations = await page.$$eval("a", (elements) =>
-          elements
-            // @ts-ignore
-            .filter((a) => a.hostname == window.location.hostname)
-            // @ts-ignore
-            .map((val) => val.href)
-        );
-        let destination = navigation.destination;
-        if (possibleLocations.length != 0) {
-          destination =
-            possibleLocations[
-              Math.floor(Math.random() * possibleLocations.length)
-            ];
-        }
-        console.log(
-          `Job Id ${jobId} run ${i} going to ${destination} from ${possibleLocations.length} number of choices`
-        );
-        await page.goto(destination, {
-          waitUntil: ["networkidle0"],
-          timeout: parseInt(process.env.TIMEOUT_LIMIT),
-          referer: navigation.referer,
-        });
-        await autoScroll(page);
-      }
 
+      await page.waitForTimeout((timeToWait * 1000) / 3);
+      await page.$eval("body", (el: any) => el.click());
+      await page.waitForTimeout((timeToWait * 1000) / 3);
+      await autoScroll(page);
+      await page.waitForTimeout((timeToWait * 1000) / 3);
       await page.goto(
         `${navigation.destination}?keyword=${navigation.keyword}`,
         {
-          waitUntil: ["networkidle0"],
-          timeout: parseInt(process.env.TIMEOUT_LIMIT),
+          waitUntil: "load",
+          timeout: 60000,
           referer: navigation.referer, // specify referrer
         }
       );
