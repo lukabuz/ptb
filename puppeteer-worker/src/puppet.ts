@@ -114,10 +114,12 @@ const navigateToPage = async (
             // @ts-ignore
             .map((val) => val.href)
         );
-        const destination =
+        let destination = navigation.destination;
+        if (possibleLocations.length != 0) {
           possibleLocations[
             Math.floor(Math.random() * possibleLocations.length)
           ];
+        }
         console.log(
           `Job Id ${jobId} run ${i} going to ${destination} from ${possibleLocations.length} number of choices`
         );
