@@ -130,7 +130,7 @@ const navigateToPage = async (
         );
         await page.goto(destination, {
           waitUntil: ["networkidle0"],
-          timeout: (timeToWait * 1000) / 4,
+          timeout: 60000,
           referer: navigation.referer,
         });
         await autoScroll(page);
