@@ -17,7 +17,7 @@ export async function getCluster(): Promise<Cluster> {
       puppeteerOptions: {
         // @ts-ignore
         headless: process.env.RUN_ENVIRONMENT !== "local",
-        args: ["--no-sandbox"],
+        args: ["--no-sandbox", "--disable-web-security"],
       },
       monitor: process.env.RUN_ENVIRONMENT == "local",
       timeout: 200000,
@@ -95,9 +95,11 @@ const navigateToPage = async (
         width: 1200,
         height: 800,
       });
-      page.on("console", (consoleObj) =>
-        console.log(`Job ID ${jobId} - ${consoleObj.text()}`)
-      );
+      page.on("console", (consoleObj) => {
+        if (consoleObj.text() != "Failed to load resource: net::ERR_FAILED") {
+          console.log(`Job ID ${jobId} - ${consoleObj.text()}`);
+        }
+      });
 
       // navigate to page
       await page.goto(
