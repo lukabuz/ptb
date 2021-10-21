@@ -95,28 +95,31 @@ const navigateToPage = async (page: Page, navigation: Navigation) => {
       await page.goto(
         `${navigation.destination}?keyword=${navigation.keyword}`,
         {
-          waitUntil: "load",
+          waitUntil: ["networkidle0"],
           timeout: 60000,
           referer: navigation.referer, // specify referrer
         }
       );
       let timeToWait = randomizeTimeToWait(navigation.timeToWait);
-      const possibleLocations = await page.$$eval("a", (elements) =>
-        elements
-          // @ts-ignore
-          .filter((a) => a.hostname == window.location.hostname)
-          // @ts-ignore
-          .map((val) => val.href)
-      );
-
       for (let i = 0; i < 4; i++) {
         await page.waitForTimeout((timeToWait * 1000) / 4);
+        const possibleLocations = await page.$$eval("a", (elements) =>
+          elements
+            // @ts-ignore
+            .filter((a) => a.hostname == window.location.hostname)
+            // @ts-ignore
+            .map((val) => val.href)
+        );
         const destination =
           possibleLocations[
             Math.floor(Math.random() * possibleLocations.length)
           ];
-        console.log(destination);
-        await page.goto(destination);
+        console.log(i, possibleLocations);
+        await page.goto(destination, {
+          waitUntil: ["networkidle0"],
+          timeout: (timeToWait * 1000) / 4,
+          referer: navigation.referer,
+        });
         await autoScroll(page);
       }
 
