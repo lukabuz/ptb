@@ -20,7 +20,7 @@ export async function getCluster(): Promise<Cluster> {
         args: ["--no-sandbox", "--disable-web-security"],
       },
       monitor: process.env.RUN_ENVIRONMENT == "local",
-      timeout: 200000,
+      timeout: parseInt(process.env.TIMEOUT_LIMIT),
     });
 
     await cluster.task(async ({ page, data: job }) => {
@@ -106,7 +106,7 @@ const navigateToPage = async (
         `${navigation.destination}?keyword=${navigation.keyword}`,
         {
           waitUntil: ["networkidle0"],
-          timeout: 60000,
+          timeout: parseInt(process.env.TIMEOUT_LIMIT),
           referer: navigation.referer, // specify referrer
         }
       );
@@ -132,7 +132,7 @@ const navigateToPage = async (
         );
         await page.goto(destination, {
           waitUntil: ["networkidle0"],
-          timeout: 60000,
+          timeout: parseInt(process.env.TIMEOUT_LIMIT),
           referer: navigation.referer,
         });
         await autoScroll(page);
@@ -142,7 +142,7 @@ const navigateToPage = async (
         `${navigation.destination}?keyword=${navigation.keyword}`,
         {
           waitUntil: ["networkidle0"],
-          timeout: 60000,
+          timeout: parseInt(process.env.TIMEOUT_LIMIT),
           referer: navigation.referer, // specify referrer
         }
       );
