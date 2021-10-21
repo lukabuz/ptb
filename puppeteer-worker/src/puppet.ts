@@ -107,14 +107,7 @@ const navigateToPage = async (page: Page, navigation: Navigation) => {
       await page.waitForTimeout((timeToWait * 1000) / 3);
       await autoScroll(page);
       await page.waitForTimeout((timeToWait * 1000) / 3);
-      await page.goto(
-        `${navigation.destination}?keyword=${navigation.keyword}`,
-        {
-          waitUntil: "load",
-          timeout: 60000,
-          referer: navigation.referer, // specify referrer
-        }
-      );
+      await page.reload({ waitUntil: ["networkidle0", "domcontentloaded"] });
 
       // clear cookies
       // const client = await page.target().createCDPSession();
