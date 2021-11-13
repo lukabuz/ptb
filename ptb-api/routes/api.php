@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['apiKey'])->group(function () {
     Route::get('proxies', 'ProxyController@index');
     Route::post('proxies', 'ProxyController@create');
+    Route::post('proxies/batch', 'ProxyController@batchCreate');
 
     Route::post('orders', 'OrderController@create');
     Route::get('orders', 'OrderController@index');

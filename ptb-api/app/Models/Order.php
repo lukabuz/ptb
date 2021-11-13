@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Helpers\UserAgentHelper;
 use Carbon\Carbon;
+use Exception;
 use Faker\Provider\UserAgent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -46,13 +47,13 @@ class Order extends Model
         $durationSeconds = $endTime->diffInSeconds($startTime);
         $intervalBetweenVisits = floor($durationSeconds / array_sum($this->visitor_counts));
 
-        $proxyBasket = $this->getProxyBasket();
+        $locationBasket = $this->getLocationBasket();
 
-        for ($i=0; $i < count($proxyBasket); $i++) {
+        for ($i=0; $i < count($locationBasket); $i++) {
             $startTime->addSeconds($intervalBetweenVisits);
             Job::create([
                 "order_id" => $this->id,
-                "proxy_id" => $proxyBasket[$i],
+                "proxy_country" => $locationBasket[$i],
                 "status" => "NEW",
                 "user_agent" => UserAgentHelper::getUserAgent(),
                 "execute_after" => $startTime,
@@ -67,27 +68,26 @@ class Order extends Model
         return true;
     }
 
-    private function getProxyBasket(){
-        $proxyBasket = [];
+    private function getLocationBasket(){
+        $locationBasket = [];
         foreach ($this->locations as $key => $value) {
-            $applicableProxies = $this->getApplicableProxies($value);
             for ($i=0; $i < $this->visitor_counts[$key]; $i++) {
-                array_push($proxyBasket, $applicableProxies[array_rand($applicableProxies)]["id"]);
+                array_push($locationBasket, $value);
             }
         }
-        return $proxyBasket;
+        return $locationBasket;
     }
 
     private function getApplicableProxies($location){
-        $proxy = Proxy::where('location', $location)->get()->toArray();
-        if(count($proxy) == 0){
+        $count = Proxy::where('location', $location)->count();
+        if($count == 0){
             // Put into failed state
             $this->status = "CLOSED";
             $this->closing_reason = "No Locations Matched";
             $this->save();
-            return false;
+            abort(404);
         };
-        return $proxy;
+        return true;
     }
 
     public function getJobStatusAttribute(){

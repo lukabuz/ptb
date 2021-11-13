@@ -17,8 +17,6 @@ class CreateJobsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('order_id');
             $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
-            $table->unsignedBigInteger('proxy_id')->nullable();
-            $table->foreign('proxy_id')->references('id')->on('proxies')->onDelete('set null');
             $table->string('referrer');
             $table->string('keyword');
             $table->string('user_agent');
@@ -30,6 +28,7 @@ class CreateJobsTable extends Migration
             $table->longText('error_dump')->nullable();
 
             $table->string('node_id')->nullable();
+            $table->string('proxy_country');
 
             $table->timestamps();
         });

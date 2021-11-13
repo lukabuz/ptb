@@ -18,6 +18,7 @@ class Proxy extends Model
         "port",
         "auth_type",
         "username",
-        "password"
+        "password",
+        "batch_id"
     ];
 }

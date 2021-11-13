@@ -25,6 +25,7 @@ class CreateProxiesTable extends Migration
             $table->enum('auth_type', ['IP_WHITELIST', 'USER_PASS']);
             $table->string('username')->nullable();
             $table->string('password')->nullable();
+            $table->string('batch_id');
 
             $table->timestamps();
         });

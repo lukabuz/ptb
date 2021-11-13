@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\BatchCreateProxyRequest;
 use App\Http\Requests\CreateProxyRequest;
 use App\Models\Proxy;
 use Illuminate\Http\Request;
@@ -38,13 +39,42 @@ class ProxyController extends Controller
             "auth_type" => $request->input("auth_type"),
             "username" => $request->input("username"),
             "password" => $request->input("password"),
-            "enabled" => true
+            "enabled" => true,
+            "batch_id" => $this->getBatchId()
         ]);
 
         return response()->json([
             "status" => "success",
             "data" => $proxy
         ]);
+    }
+
+    public function batchCreate(BatchCreateProxyRequest $request)
+    {
+        $batchId = $this->getBatchId();
+        foreach ($request->input('proxies') as $proxyInput) {
+            Proxy::create([
+                "provider" => $proxyInput["provider"],
+                "location" => $proxyInput["location"],
+                "type" => $proxyInput["type"],
+                "ip" => $proxyInput["ip"],
+                "port" => $proxyInput["port"],
+                "auth_type" => $proxyInput["auth_type"],
+                "username" => isset($proxyInput["username"]) ? $proxyInput["username"] : null,
+                "password" => isset($proxyInput["password"]) ? $proxyInput["password"] : null,
+                "enabled" => true,
+                "batch_id"=> $batchId
+            ]);
+        }
+
+
+        return response()->json([
+            "status" => "success",
+        ]);
+    }
+
+    private function getBatchId(){
+        return substr(str_shuffle(str_repeat($x='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil(10/strlen($x)) )),1,10);
     }
 
     /**

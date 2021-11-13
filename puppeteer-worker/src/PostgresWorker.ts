@@ -40,7 +40,7 @@ export default class PostgresWorker {
     });
   }
 
-  private async executeReservedJobs(ids) {
+  public async executeReservedJobs(ids) {
     let response = await this.query(`
         select
             j.id,
@@ -48,16 +48,10 @@ export default class PostgresWorker {
             j.keyword,
             j.user_agent,
             j.destination_url,
-            p.ip,
-            p.port,
-            p.auth_type,
-            p.username,
-            p.password,
+            j.proxy_country,
             o.page_idle_time
         from
             jobs j
-        left join proxies p on
-            j.proxy_id = p.id
         left join orders o on
             j.order_id = o.id
         where
@@ -65,7 +59,24 @@ export default class PostgresWorker {
         `);
     if (response["rows"].length > 0) {
       console.log(`Queueing ${response["rows"].length} jobs`);
-      this.prepareAndQueueTask(response["rows"]);
+      let jobs = [];
+      for (let i = 0; i < response["rows"].length; i++) {
+        const row = response["rows"][i];
+        let proxyRows = await this.query(
+          `select * from proxies p where p."location" = '${row.proxy_country}' and p.enabled order by random() limit 1`
+        );
+        let proxy = proxyRows["rows"][0];
+        jobs.push({
+          ...row,
+          ip: proxy.ip,
+          port: proxy.port,
+          auth_type: proxy.auth_type,
+          username: proxy.username,
+          password: proxy.password,
+        });
+      }
+
+      this.prepareAndQueueTask(jobs);
     }
   }
 

@@ -11,7 +11,7 @@ class Job extends Model
 
     protected $fillable = [
         "order_id",
-        "proxy_id",
+        "proxy_country",
         "status",
         "execute_after",
         "referrer",
